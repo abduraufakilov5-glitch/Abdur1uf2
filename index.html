@@ -3,199 +3,605 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rumol Biz</title>
+    <title>Rumol ERP Premium</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3081/3081559.png">
+
     <style>
         :root {
-            --bg: #000; --surf: #1C1C1E; --prim: #0A84FF; --text: #fff; --muted: #8E8E93;
-            --success: #32D74B; --danger: #FF453A; --border: rgba(255,255,255,0.1);
+            --ios-bg: #000000;
+            --ios-card: #1C1C1E;
+            --ios-card-secondary: #2C2C2E;
+            --ios-blue: #0A84FF;
+            --ios-green: #30D158;
+            --ios-red: #FF453A;
+            --ios-orange: #FF9F0A;
+            --ios-gold: #D4AF37;
+            --ios-text: #FFFFFF;
+            --ios-text-muted: #8E8E93;
+            --ios-border: rgba(255, 255, 255, 0.1);
+            --safe-area-top: env(safe-area-inset-top);
+            --safe-area-bottom: env(safe-area-inset-bottom);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
-        
-        .header { padding: 40px 16px 20px; background: var(--surf); border-bottom: 0.5px solid var(--border); }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .stat-card { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; }
-        .stat-card span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; }
-        .stat-card b { font-size: 18px; color: var(--prim); }
 
-        .view { padding: 16px; display: none; }
-        .view.active { display: block; }
+        /* --- Сброс стилей --- */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-        .card { background: var(--surf); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 0.5px solid var(--border); }
-        .input-group { margin-bottom: 15px; position: relative; }
-        label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
-        input, select, textarea { width: 100%; background: #2C2C2E; border: none; border-radius: 8px; padding: 12px; color: #fff; font-size: 16px; }
+        body {
+            background-color: var(--ios-bg);
+            color: var(--ios-text);
+            overflow-x: hidden;
+            line-height: 1.4;
+            -webkit-user-select: none;
+        }
 
-        .photo-picker { width: 100%; height: 150px; background: #2C2C2E; border: 2px dashed var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; }
-        .photo-picker img { width: 100%; height: 100%; object-fit: cover; }
+        /* --- Общие элементы --- */
+        .glass {
+            background: rgba(28, 28, 30, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
 
-        .order-item { display: flex; gap: 12px; align-items: center; }
-        .order-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #2C2C2E; }
-        .order-info { flex: 1; }
-        .order-info h4 { font-size: 15px; margin-bottom: 4px; }
-        .order-info p { font-size: 12px; color: var(--muted); }
-        
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
-        .badge.transit { background: rgba(10,132,255,0.2); color: var(--prim); }
-        .badge.debt { background: rgba(255,69,58,0.2); color: var(--danger); }
-        .badge.paid { background: rgba(50,215,75,0.2); color: var(--success); }
+        .container {
+            padding: calc(20px + var(--safe-area-top)) 20px calc(100px + var(--safe-area-bottom));
+            max-width: 500px;
+            margin: 0 auto;
+        }
 
-        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(28,28,30,0.8); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 15px 0 env(safe-area-inset-bottom); border-top: 0.5px solid var(--border); }
-        .nav-item { color: var(--muted); text-decoration: none; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: var(--prim); }
-        .btn { background: var(--prim); color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 600; font-size: 16px; }
+        /* --- Заголовок --- */
+        .header {
+            margin-bottom: 24px;
+            padding-top: 10px;
+        }
+        .header h1 {
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .header p {
+            color: var(--ios-text-muted);
+            font-size: 15px;
+        }
+
+        /* --- Виджеты статистики --- */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--ios-card);
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid var(--ios-border);
+            transition: transform 0.2s;
+        }
+        .stat-card:active { transform: scale(0.97); }
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--ios-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stat-card .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ios-gold);
+        }
+
+        /* --- Формы и карточки --- */
+        .card {
+            background: var(--ios-card);
+            border-radius: 22px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--ios-border);
+        }
+        .section-title {
+            font-size: 13px;
+            color: var(--ios-text-muted);
+            text-transform: uppercase;
+            margin: 0 0 8px 16px;
+            font-weight: 500;
+        }
+
+        .input-row {
+            background: var(--ios-card-secondary);
+            border-radius: 14px;
+            margin-bottom: 12px;
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-row label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ios-blue);
+            margin-bottom: 4px;
+        }
+        .input-row input, .input-row select {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 17px;
+            outline: none;
+            width: 100%;
+        }
+
+        /* --- Фото превью --- */
+        .photo-uploader {
+            width: 100%;
+            height: 180px;
+            background: var(--ios-card-secondary);
+            border-radius: 18px;
+            border: 2px dashed var(--ios-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .photo-uploader img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-uploader .placeholder {
+            text-align: center;
+            color: var(--ios-blue);
+        }
+
+        /* --- Кнопки --- */
+        .btn {
+            background: var(--ios-blue);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 17px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn:active { opacity: 0.7; transform: scale(0.98); }
+        .btn-ai {
+            background: linear-gradient(135deg, #5856D6 0%, #AF52DE 100%);
+            margin-bottom: 12px;
+        }
+        .btn-secondary {
+            background: var(--ios-card-secondary);
+            color: var(--ios-text);
+        }
+
+        /* --- Список заказов --- */
+        .order-card {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            background: var(--ios-card);
+            padding: 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--ios-border);
+        }
+        .order-thumb {
+            width: 75px;
+            height: 75px;
+            border-radius: 14px;
+            object-fit: cover;
+            background: var(--ios-card-secondary);
+        }
+        .order-details { flex: 1; }
+        .order-details h4 { font-size: 16px; margin-bottom: 2px; }
+        .order-details p { font-size: 13px; color: var(--ios-text-muted); }
+        .order-actions { display: flex; flex-direction: column; gap: 8px; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-transit { background: rgba(10, 132, 255, 0.15); color: var(--ios-blue); }
+        .status-debt { background: rgba(255, 69, 58, 0.15); color: var(--ios-red); }
+
+        /* --- Навигация --- */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 20px calc(15px + var(--safe-area-bottom));
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--ios-border);
+            z-index: 1000;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--ios-text-muted);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        .tab-item.active { color: var(--ios-blue); }
+        .tab-icon { font-size: 24px; }
+
+        /* --- Toast Notifications --- */
+        #toast {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--ios-card-secondary);
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2000;
+            transition: 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            border: 1px solid var(--ios-border);
+            white-space: nowrap;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Анимации */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1 id="user-name">Biz: Abdurauf</h1>
-        <div class="stats-grid">
-            <div class="stat-card"><span>Оборот (всего)</span><b id="stat-turnover">0</b></div>
-            <div class="stat-card"><span>Долг мамы</span><b id="stat-debt" style="color: var(--danger);">0</b></div>
-            <div class="stat-card"><span>В пути (шт)</span><b id="stat-transit">0</b></div>
-            <div class="stat-card"><span>Прибыль</span><b id="stat-profit" style="color: var(--success);">0</b></div>
-        </div>
-    </div>
+    <div id="toast">Сообщение</div>
 
-    <div id="view-add" class="view active">
-        <div class="card">
-            <div class="photo-picker" onclick="document.getElementById('fileInput').click()">
-                <span id="photo-label">📸 Нажми, чтобы сделать фото</span>
-                <img id="photo-preview" style="display:none">
-                <input type="file" id="fileInput" accept="image/*" capture="camera" style="display:none" onchange="previewPhoto(this)">
+    <div class="container">
+        <header class="header">
+            <p id="current-date">Понедельник, 6 апреля</p>
+            <h1>Учёт Платки</h1>
+        </header>
+
+        <section class="stats-container">
+            <div class="stat-card">
+                <div class="label"><span>📈</span>Оборот</div>
+                <div class="value" id="total-turnover">0 с.</div>
             </div>
-            <div class="input-group">
-                <label>Кол-во и Цена за шт (Юань)</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="number" id="q-qty" placeholder="Кол-во">
-                    <input type="number" id="q-price" placeholder="Цена ¥">
+            <div class="stat-card">
+                <div class="label"><span>🔴</span>Долг Мамы</div>
+                <div class="value" id="total-debt" style="color: var(--ios-red);">0 с.</div>
+            </div>
+            <div class="stat-card">
+                <div class="label"><span>📦</span>В пути</div>
+                <div class="value" id="transit-count">0 шт.</div>
+            </div>
+            <div class="stat-card">
+                <div class="label"><span>💰</span>Прибыль</div>
+                <div class="value" id="total-profit" style="color: var(--ios-green);">0 с.</div>
+            </div>
+        </section>
+
+        <div id="view-add" class="view active fade-in">
+            <h3 class="section-title">Новая поставка</h3>
+            <div class="card">
+                <div class="photo-uploader" onclick="document.getElementById('file-input').click()">
+                    <div class="placeholder" id="upload-placeholder">
+                        <span style="font-size: 40px;">📸</span>
+                        <p>Сфоткай товар или экран 1688</p>
+                    </div>
+                    <img id="image-preview" style="display:none">
+                    <input type="file" id="file-input" accept="image/*" capture="camera" style="display:none" onchange="App.handleImage(this)">
                 </div>
+
+                <button class="btn btn-ai" id="ai-trigger" onclick="App.runAI()">
+                    <span>🪄</span> Распознать через ИИ
+                </button>
+
+                <div class="input-row">
+                    <label>Количество (шт)</label>
+                    <input type="number" id="inp-qty" placeholder="Сколько штук?">
+                </div>
+                <div class="input-row">
+                    <label>Цена за шт (Юань ¥)</label>
+                    <input type="number" step="0.01" id="inp-price" placeholder="Цена за единицу">
+                </div>
+                <div class="input-row">
+                    <label>Тип материала</label>
+                    <select id="inp-type">
+                        <option value="0.08">Шелк стандарт (80г)</option>
+                        <option value="0.04">Шелк мини (40г)</option>
+                        <option value="0.15">Хлопок/Вискоза (150г)</option>
+                        <option value="0.30">Кашемир/Шаль (300г)</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="App.saveOrder()" style="margin-top: 10px;">
+                    Создать запись
+                </button>
             </div>
-            <div class="input-group">
-                <label>Тип товара (для веса)</label>
-                <select id="q-type">
-                    <option value="0.08">Шелк 90х90 (~80г)</option>
-                    <option value="0.03">Шелк 50х50 (~30г)</option>
-                    <option value="0.15">Хлопок (~150г)</option>
-                    <option value="0.3">Кашемир (~300г)</option>
-                </select>
-            </div>
-            <button class="btn" onclick="saveOrder()">Заказать платки</button>
+        </div>
+
+        <div id="view-orders" class="view fade-in" style="display:none">
+            <h3 class="section-title">История и склад</h3>
+            <div id="orders-list">
+                </div>
         </div>
     </div>
 
-    <div id="view-orders" class="view">
-        <div id="orders-list"></div>
-    </div>
-
-    <nav class="nav">
-        <a href="#" class="nav-item active" onclick="switchView('add')">➕ Заказ</a>
-        <a href="#" class="nav-item" onclick="switchView('orders')">📦 Мои платки</a>
+    <nav class="tab-bar glass">
+        <a href="javascript:void(0)" class="tab-item active" onclick="App.switchTab('add', this)">
+            <span class="tab-icon">➕</span>
+            <span>Добавить</span>
+        </a>
+        <a href="javascript:void(0)" class="tab-item" onclick="App.switchTab('orders', this)">
+            <span class="tab-icon">📦</span>
+            <span>Заказы</span>
+        </a>
     </nav>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('rumol_db')) || { orders: [], rate: 1.48 };
-        let currentPhoto = "";
+        /**
+         * RUMOL BIZ ERP - CORE ENGINE
+         * Сделано специально для Абдурауфа.
+         */
 
-        function previewPhoto(input) {
-            if (input.files && input.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    currentPhoto = e.target.result;
-                    document.getElementById('photo-preview').src = currentPhoto;
-                    document.getElementById('photo-preview').style.display = 'block';
-                    document.getElementById('photo-label').style.display = 'none';
+        const CONFIG = {
+            API_KEY: "AIzaSyCF4VNjJSjdB6tvaLA7hgme2YKtiDwAwz8",
+            TJS_RATE: 1.48, // Курс сомони
+            CARGO_RATE: 30, // 30 сомони за кг
+            STORAGE_KEY: "rumol_pro_data"
+        };
+
+        const App = {
+            state: {
+                orders: [],
+                currentPhoto: null,
+                userName: "Abdurauf"
+            },
+
+            init() {
+                // Загрузка данных
+                const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+                if (saved) this.state.orders = JSON.parse(saved);
+
+                this.updateDate();
+                this.renderStats();
+                this.renderOrders();
+                
+                console.log("App Initialized. Оборот:", this.calculateTurnover());
+            },
+
+            updateDate() {
+                const options = { weekday: 'long', day: 'numeric', month: 'long' };
+                document.getElementById('current-date').innerText = new Date().toLocaleDateString('ru-RU', options);
+            },
+
+            // --- Работа с изображениями ---
+            handleImage(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.state.currentPhoto = e.target.result;
+                        const img = document.getElementById('image-preview');
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                        document.getElementById('upload-placeholder').style.display = 'none';
+                        this.showToast("Фото загружено ✅");
+                    };
+                    reader.readAsDataURL(input.files[0]);
                 }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+            },
 
-        function saveOrder() {
-            const qty = Number(document.getElementById('q-qty').value);
-            const priceY = Number(document.getElementById('q-price').value);
-            const weightUnit = Number(document.getElementById('q-type').value);
-            
-            if(!qty || !priceY) return alert("Заполни данные!");
+            // --- Интеграция с ИИ ---
+            async runAI() {
+                if (!this.state.currentPhoto) {
+                    this.showToast("❌ Сначала сделай фото!");
+                    return;
+                }
 
-            const costTJS = qty * priceY * db.rate;
-            const deliveryTJS = (qty * weightUnit) * 30; // 30с за кг (авто)
+                const btn = document.getElementById('ai-trigger');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = "<span>⏳</span> Анализ фото...";
+                btn.disabled = true;
 
-            const newOrder = {
-                id: Date.now(),
-                photo: currentPhoto,
-                qty: qty,
-                cost: (costTJS + deliveryTJS).toFixed(2),
-                status: 'transit', // transit, arrived, debt, paid
-                date: new Date().toLocaleDateString()
-            };
+                const base64Image = this.state.currentPhoto.split(',')[1];
+                const prompt = "Ты ассистент байера платков из Китая. Посмотри на фото и извлеки: количество (qty), цену за штуку в юанях (price). Ответ дай строго в формате JSON: {'qty': число, 'price': число}. Если не видишь, предложи среднее.";
 
-            db.orders.unshift(newOrder);
-            localStorage.setItem('rumol_db', JSON.stringify(db));
-            alert("Заказ добавлен в путь!");
-            location.reload();
-        }
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    { text: prompt },
+                                    { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+                                ]
+                            }]
+                        })
+                    });
 
-        function renderOrders() {
-            const list = document.getElementById('orders-list');
-            list.innerHTML = db.orders.map(o => `
-                <div class="card order-item">
-                    <img src="${o.photo || 'https://via.placeholder.com/80'}" class="order-img">
-                    <div class="order-info">
-                        <h4>Заказ от ${o.date}</h4>
-                        <p>${o.qty} шт • Себест: ${o.cost} TJS</p>
-                        <div style="margin-top:8px;">
-                            ${getStatusBadge(o)}
+                    const data = await response.json();
+                    const rawText = data.candidates[0].content.parts[0].text;
+                    const jsonStr = rawText.replace(/```json|```/g, "").trim();
+                    const result = JSON.parse(jsonStr);
+
+                    if (result.qty) document.getElementById('inp-qty').value = result.qty;
+                    if (result.price) document.getElementById('inp-price').value = result.price;
+
+                    this.showToast("✨ ИИ распознал данные!");
+                } catch (err) {
+                    console.error(err);
+                    this.showToast("⚠️ Ошибка ИИ");
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            },
+
+            // --- Бизнес логика ---
+            saveOrder() {
+                const qty = parseInt(document.getElementById('inp-qty').value);
+                const priceY = parseFloat(document.getElementById('inp-price').value);
+                const weightPerUnit = parseFloat(document.getElementById('inp-type').value);
+
+                if (!qty || !priceY) {
+                    this.showToast("🚫 Заполни все поля!");
+                    return;
+                }
+
+                // Расчет себестоимости: (Цена * Курс) + (Вес * Тариф Карго)
+                const costProduct = qty * priceY * CONFIG.TJS_RATE;
+                const costShipping = (qty * weightPerUnit) * CONFIG.CARGO_RATE;
+                const totalCost = Math.ceil(costProduct + costShipping);
+
+                const order = {
+                    id: Date.now(),
+                    photo: this.state.currentPhoto,
+                    qty: qty,
+                    priceYuan: priceY,
+                    totalCost: totalCost,
+                    status: 'transit', // transit, debt
+                    sellPrice: 0,
+                    date: new Date().toLocaleDateString('ru-RU')
+                };
+
+                this.state.orders.unshift(order);
+                this.sync();
+                this.resetForm();
+                this.showToast("📦 Заказ в пути!");
+                this.renderStats();
+                this.renderOrders();
+            },
+
+            markAsDebt(id) {
+                const order = this.state.orders.find(o => o.id === id);
+                const sellPrice = prompt(`За сколько отдаешь маме ${order.qty} шт? (Себест: ${order.totalCost}с)`, Math.ceil(order.totalCost * 1.3));
+                
+                if (sellPrice) {
+                    order.status = 'debt';
+                    order.sellPrice = parseInt(sellPrice);
+                    this.sync();
+                    this.renderStats();
+                    this.renderOrders();
+                    this.showToast("💸 Записано в долг");
+                }
+            },
+
+            deleteOrder(id) {
+                if(confirm("Удалить запись?")) {
+                    this.state.orders = this.state.orders.filter(o => o.id !== id);
+                    this.sync();
+                    this.renderStats();
+                    this.renderOrders();
+                }
+            },
+
+            // --- Вспомогательные функции ---
+            calculateTurnover() {
+                return this.state.orders.reduce((sum, o) => sum + o.totalCost, 0);
+            },
+
+            calculateDebt() {
+                return this.state.orders
+                    .filter(o => o.status === 'debt')
+                    .reduce((sum, o) => sum + o.sellPrice, 0);
+            },
+
+            calculateProfit() {
+                return this.state.orders
+                    .filter(o => o.status === 'debt')
+                    .reduce((sum, o) => sum + (o.sellPrice - o.totalCost), 0);
+            },
+
+            sync() {
+                localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(this.state.orders));
+            },
+
+            resetForm() {
+                document.getElementById('inp-qty').value = "";
+                document.getElementById('inp-price').value = "";
+                document.getElementById('image-preview').style.display = 'none';
+                document.getElementById('upload-placeholder').style.display = 'block';
+                this.state.currentPhoto = null;
+            },
+
+            // --- UI Рендеринг ---
+            renderStats() {
+                document.getElementById('total-turnover').innerText = this.calculateTurnover() + " с.";
+                document.getElementById('total-debt').innerText = this.calculateDebt() + " с.";
+                document.getElementById('total-profit').innerText = this.calculateProfit() + " с.";
+                document.getElementById('transit-count').innerText = this.state.orders.filter(o => o.status === 'transit').reduce((s,o) => s + o.qty, 0) + " шт.";
+            },
+
+            renderOrders() {
+                const list = document.getElementById('orders-list');
+                if (this.state.orders.length === 0) {
+                    list.innerHTML = `<p style="text-align:center; color:gray; margin-top:40px;">Заказов пока нет</p>`;
+                    return;
+                }
+
+                list.innerHTML = this.state.orders.map(o => `
+                    <div class="order-card fade-in">
+                        <img src="${o.photo || 'https://via.placeholder.com/100'}" class="order-thumb">
+                        <div class="order-details">
+                            <h4>Партия ${o.qty} шт.</h4>
+                            <p>${o.date} • Себ: ${o.totalCost}с</p>
+                            <span class="status-badge ${o.status === 'transit' ? 'status-transit' : 'status-debt'}">
+                                ${o.status === 'transit' ? '✈️ В пути' : '👩‍👧 У мамы'}
+                            </span>
+                        </div>
+                        <div class="order-actions">
+                            ${o.status === 'transit' ? 
+                                `<button class="btn" style="padding:8px; font-size:12px;" onclick="App.markAsDebt(${o.id})">Отдать</button>` : 
+                                `<div style="font-size:14px; font-weight:bold; color:var(--ios-green)">+${o.sellPrice}с</div>`
+                            }
+                            <button onclick="App.deleteOrder(${o.id})" style="background:none; border:none; color:var(--ios-red); font-size:11px;">Удалить</button>
                         </div>
                     </div>
-                    <div>
-                        ${o.status === 'transit' ? `<button onclick="updateStatus(${o.id}, 'arrived')" style="font-size:10px; padding:5px;">Пришло</button>` : ''}
-                        ${o.status === 'arrived' ? `<button onclick="markAsDebt(${o.id})" style="background:var(--danger); font-size:10px; padding:5px; color:white; border-radius:5px; border:none;">Маме</button>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
+                `).join('');
+            },
 
-        function getStatusBadge(o) {
-            if(o.status === 'transit') return `<span class="badge transit">В ПУТИ</span>`;
-            if(o.status === 'arrived') return `<span class="badge">НА СКЛАДЕ</span>`;
-            if(o.status === 'debt') return `<span class="badge debt">ДОЛГ МАМЫ</span>`;
-            return `<span class="badge paid">ОПЛАЧЕНО</span>`;
-        }
+            switchTab(tab, el) {
+                document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+                document.getElementById('view-' + tab).style.display = 'block';
+                
+                document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
 
-        function updateStatus(id, status) {
-            db.orders = db.orders.map(o => o.id === id ? {...o, status} : o);
-            localStorage.setItem('rumol_db', JSON.stringify(db));
-            render();
-        }
+                if(tab === 'orders') this.renderOrders();
+            },
 
-        function markAsDebt(id) {
-            let sellPrice = prompt("За сколько (всего) отдаешь маме эту партию?", "600");
-            if(!sellPrice) return;
-            db.orders = db.orders.map(o => o.id === id ? {...o, status: 'debt', sellPrice: Number(sellPrice)} : o);
-            localStorage.setItem('rumol_db', JSON.stringify(db));
-            render();
-        }
+            showToast(msg) {
+                const t = document.getElementById('toast');
+                t.innerText = msg;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 3000);
+            }
+        };
 
-        function renderStats() {
-            const totalTurnover = db.orders.reduce((sum, o) => sum + Number(o.cost), 0);
-            const totalDebt = db.orders.filter(o => o.status === 'debt').reduce((sum, o) => sum + Number(o.sellPrice), 0);
-            const transitCount = db.orders.filter(o => o.status === 'transit').reduce((sum, o) => sum + o.qty, 0);
-            
-            document.getElementById('stat-turnover').innerText = totalTurnover.toFixed(0) + ' с.';
-            document.getElementById('stat-debt').innerText = totalDebt.toFixed(0) + ' с.';
-            document.getElementById('stat-transit').innerText = transitCount;
-        }
-
-        function switchView(v) {
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + v).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-
-        function render() { renderStats(); renderOrders(); }
-        render();
+        // Запуск при загрузке
+        window.onload = () => App.init();
     </script>
 </body>
 </html>
