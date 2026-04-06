@@ -3,426 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BizTracker</title>
-    
-    <link rel="manifest" id="manifest-link">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Tracker">
-    
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230A84FF' rx='40'/%3E%3Ctext x='96' y='115' font-family='sans-serif' font-weight='bold' font-size='80' fill='%23FFF' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
-
+    <title>Rumol Biz</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --surface: #1C1C1E;
-            --surface-glass: rgba(28, 28, 30, 0.7);
-            --primary: #0A84FF;
-            --text-main: #FFFFFF;
-            --text-muted: #EBEBF599;
-            --danger: #FF453A;
-            --success: #32D74B;
-            --border: rgba(255, 255, 255, 0.1);
-            --radius-lg: 16px;
-            --radius-md: 12px;
+            --bg: #000; --surf: #1C1C1E; --prim: #0A84FF; --text: #fff; --muted: #8E8E93;
+            --success: #32D74B; --danger: #FF453A; --border: rgba(255,255,255,0.1);
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
+        
+        .header { padding: 40px 16px 20px; background: var(--surf); border-bottom: 0.5px solid var(--border); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat-card { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; }
+        .stat-card span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; }
+        .stat-card b { font-size: 18px; color: var(--prim); }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overscroll-behavior-y: none;
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
-        }
-
-        .glass {
-            background: var(--surface-glass);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-        }
-
-        .view {
-            display: none;
-            padding: calc(20px + env(safe-area-inset-top)) 16px 20px;
-            animation: fadeIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
+        .view { padding: 16px; display: none; }
         .view.active { display: block; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .card { background: var(--surf); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 0.5px solid var(--border); }
+        .input-group { margin-bottom: 15px; position: relative; }
+        label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+        input, select, textarea { width: 100%; background: #2C2C2E; border: none; border-radius: 8px; padding: 12px; color: #fff; font-size: 16px; }
 
-        h1 { font-size: 28px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.5px; }
-        h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .photo-picker { width: 100%; height: 150px; background: #2C2C2E; border: 2px dashed var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; }
+        .photo-picker img { width: 100%; height: 100%; object-fit: cover; }
 
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 0.5px solid var(--border);
-        }
+        .order-item { display: flex; gap: 12px; align-items: center; }
+        .order-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #2C2C2E; }
+        .order-info { flex: 1; }
+        .order-info h4 { font-size: 15px; margin-bottom: 4px; }
+        .order-info p { font-size: 12px; color: var(--muted); }
+        
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        .badge.transit { background: rgba(10,132,255,0.2); color: var(--prim); }
+        .badge.debt { background: rgba(255,69,58,0.2); color: var(--danger); }
+        .badge.paid { background: rgba(50,215,75,0.2); color: var(--success); }
 
-        .input-group {
-            position: relative;
-            margin-bottom: 12px;
-            background: #2C2C2E;
-            border-radius: var(--radius-md);
-        }
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 24px 16px 8px;
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            font-size: 16px;
-            outline: none;
-            appearance: none;
-        }
-        .input-group label {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            font-size: 16px;
-            color: var(--text-muted);
-            transition: 0.2s ease all;
-            pointer-events: none;
-        }
-        .input-group input:focus ~ label,
-        .input-group input:not(:placeholder-shown) ~ label,
-        .input-group select:focus ~ label,
-        .input-group select:valid ~ label {
-            top: 6px;
-            font-size: 11px;
-            color: var(--primary);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            border: none;
-            background: var(--primary);
-            color: #fff;
-            font-size: 17px;
-            font-weight: 600;
-            transition: transform 0.1s, opacity 0.2s;
-            cursor: pointer;
-        }
-        .btn:active { transform: scale(0.97); opacity: 0.8; }
-        .btn-danger { background: rgba(255, 69, 58, 0.15); color: var(--danger); }
-        .btn-small { padding: 8px 12px; font-size: 14px; width: auto; }
-
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-        .result-box { background: #2C2C2E; padding: 12px; border-radius: var(--radius-md); }
-        .result-box span { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-        .result-box strong { font-size: 18px; }
-        .profit-positive { color: var(--success); }
-
-        .order-item { display: flex; justify-content: space-between; align-items: center; }
-        .order-info h4 { margin-bottom: 4px; }
-        .order-info p { font-size: 13px; color: var(--text-muted); }
-        .badge { padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        .badge.transit { background: rgba(10, 132, 255, 0.2); color: var(--primary); }
-        .badge.arrived { background: rgba(50, 215, 75, 0.2); color: var(--success); }
-
-        .tab-bar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
-            border-top: 0.5px solid var(--border);
-            z-index: 100;
-        }
-        .tab-btn {
-            background: none; border: none;
-            color: var(--text-muted);
-            display: flex; flex-direction: column; align-items: center;
-            gap: 4px; font-size: 10px; cursor: pointer;
-            transition: color 0.2s;
-        }
-        .tab-btn svg { width: 24px; height: 24px; }
-        .tab-btn.active { color: var(--primary); }
+        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(28,28,30,0.8); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 15px 0 env(safe-area-inset-bottom); border-top: 0.5px solid var(--border); }
+        .nav-item { color: var(--muted); text-decoration: none; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item.active { color: var(--prim); }
+        .btn { background: var(--prim); color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 600; font-size: 16px; }
     </style>
 </head>
 <body>
-    <div id="app">
-        <main id="view-container"></main>
 
-        <nav class="tab-bar glass">
-            <button class="tab-btn active" data-target="calc">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="8" y1="9" x2="16" y2="9"></line><line x1="8" y1="15" x2="16" y2="15"></line></svg>
-                <span>Расчёт</span>
-            </button>
-            <button class="tab-btn" data-target="orders">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                <span>Заказы</span>
-            </button>
-            <button class="tab-btn" data-target="stats">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                <span>Аналитика</span>
-            </button>
-            <button class="tab-btn" data-target="settings">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                <span>Настройки</span>
-            </button>
-        </nav>
+    <div class="header">
+        <h1 id="user-name">Biz: Abdurauf</h1>
+        <div class="stats-grid">
+            <div class="stat-card"><span>Оборот (всего)</span><b id="stat-turnover">0</b></div>
+            <div class="stat-card"><span>Долг мамы</span><b id="stat-debt" style="color: var(--danger);">0</b></div>
+            <div class="stat-card"><span>В пути (шт)</span><b id="stat-transit">0</b></div>
+            <div class="stat-card"><span>Прибыль</span><b id="stat-profit" style="color: var(--success);">0</b></div>
+        </div>
     </div>
 
+    <div id="view-add" class="view active">
+        <div class="card">
+            <div class="photo-picker" onclick="document.getElementById('fileInput').click()">
+                <span id="photo-label">📸 Нажми, чтобы сделать фото</span>
+                <img id="photo-preview" style="display:none">
+                <input type="file" id="fileInput" accept="image/*" capture="camera" style="display:none" onchange="previewPhoto(this)">
+            </div>
+            <div class="input-group">
+                <label>Кол-во и Цена за шт (Юань)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="q-qty" placeholder="Кол-во">
+                    <input type="number" id="q-price" placeholder="Цена ¥">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Тип товара (для веса)</label>
+                <select id="q-type">
+                    <option value="0.08">Шелк 90х90 (~80г)</option>
+                    <option value="0.03">Шелк 50х50 (~30г)</option>
+                    <option value="0.15">Хлопок (~150г)</option>
+                    <option value="0.3">Кашемир (~300г)</option>
+                </select>
+            </div>
+            <button class="btn" onclick="saveOrder()">Заказать платки</button>
+        </div>
+    </div>
+
+    <div id="view-orders" class="view">
+        <div id="orders-list"></div>
+    </div>
+
+    <nav class="nav">
+        <a href="#" class="nav-item active" onclick="switchView('add')">➕ Заказ</a>
+        <a href="#" class="nav-item" onclick="switchView('orders')">📦 Мои платки</a>
+    </nav>
+
     <script>
-        // --- 1. STATE MANAGER (Store) ---
-        const initialState = {
-            orders: [],
-            settings: {
-                rate: 1.48, // TJS
-                defaultCargo: 'auto',
-                cargoAutoRate: 30, // TJS за кг
-                cargoAirRate: 80
-            }
-        };
+        let db = JSON.parse(localStorage.getItem('rumol_db')) || { orders: [], rate: 1.48 };
+        let currentPhoto = "";
 
-        class Store {
-            constructor() {
-                this.state = JSON.parse(localStorage.getItem('bizData')) || initialState;
-                this.listeners = [];
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhoto = e.target.result;
+                    document.getElementById('photo-preview').src = currentPhoto;
+                    document.getElementById('photo-preview').style.display = 'block';
+                    document.getElementById('photo-label').style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
             }
-            subscribe(listener) { this.listeners.push(listener); }
-            update(updater) {
-                this.state = typeof updater === 'function' ? updater(this.state) : { ...this.state, ...updater };
-                localStorage.setItem('bizData', JSON.stringify(this.state));
-                this.listeners.forEach(listener => listener(this.state));
-            }
-            getState() { return this.state; }
         }
-        const store = new Store();
 
-        // --- 2. БИЗНЕС ЛОГИКА (Logic) ---
-        const Logic = {
-            calculate(params) {
-                const s = store.getState().settings;
-                const costYuan = params.qty * params.priceYuan;
-                const costLocal = costYuan * s.rate;
-                const cargoPricePerKg = params.cargoType === 'auto' ? s.cargoAutoRate : s.cargoAirRate;
-                const deliveryCost = params.weight * cargoPricePerKg;
-                const totalCost = costLocal + deliveryCost;
-                const profit = params.sellPrice - totalCost;
-
-                return {
-                    costLocal: costLocal.toFixed(2),
-                    deliveryCost: deliveryCost.toFixed(2),
-                    totalCost: totalCost.toFixed(2),
-                    profit: profit.toFixed(2)
-                };
-            },
-            addOrder(orderData) {
-                store.update(s => ({
-                    ...s,
-                    orders: [{ id: Date.now().toString(), date: new Date().toISOString(), status: 'transit', ...orderData }, ...s.orders]
-                }));
-            },
-            deleteOrder(id) { store.update(s => ({ ...s, orders: s.orders.filter(o => o.id !== id) })); },
-            toggleOrderStatus(id) {
-                store.update(s => ({ ...s, orders: s.orders.map(o => o.id === id ? { ...o, status: o.status === 'transit' ? 'arrived' : 'transit' } : o) }));
-            },
-            getAnalytics() {
-                const orders = store.getState().orders;
-                return {
-                    totalOrders: orders.length,
-                    totalProfit: orders.reduce((sum, o) => sum + Number(o.profit), 0),
-                    inTransit: orders.filter(o => o.status === 'transit').length,
-                    arrived: orders.filter(o => o.status === 'arrived').length
-                };
-            }
-        };
-
-        // --- 3. ИНТЕРФЕЙС (UI) ---
-        const UI = {
-            init() {
-                this.container = document.getElementById('view-container');
-                this.currentView = 'calc';
-                this.lastCalcData = null;
-                
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                        e.currentTarget.classList.add('active');
-                        this.currentView = e.currentTarget.dataset.target;
-                        this.render();
-                    });
-                });
-
-                this.container.addEventListener('click', this.handleClicks.bind(this));
-                this.container.addEventListener('input', this.handleInputs.bind(this));
-                
-                store.subscribe(() => { if (['orders', 'stats', 'settings'].includes(this.currentView)) this.render(); });
-                this.render();
-            },
-
-            render() {
-                const views = { calc: this.viewCalc, orders: this.viewOrders, stats: this.viewStats, settings: this.viewSettings };
-                this.container.innerHTML = `<div class="view active">${views[this.currentView].call(this)}</div>`;
-                if (this.currentView === 'calc' && this.lastCalcData) this.updateCalcUI();
-            },
-
-            viewCalc() {
-                const s = store.getState().settings;
-                return `
-                    <h1>Расчёт</h1>
-                    <div class="card">
-                        <div class="input-group"><input type="number" id="c-qty" placeholder=" "><label>Количество (шт)</label></div>
-                        <div class="input-group"><input type="number" id="c-price" placeholder=" "><label>Цена за шт (¥)</label></div>
-                        <div class="input-group"><input type="number" id="c-weight" placeholder=" "><label>Общий вес (кг)</label></div>
-                        <div class="input-group">
-                            <select id="c-cargo">
-                                <option value="auto" ${s.defaultCargo === 'auto' ? 'selected' : ''}>Авто карго</option>
-                                <option value="air" ${s.defaultCargo === 'air' ? 'selected' : ''}>Авиа карго</option>
-                            </select>
-                            <label>Тип доставки</label>
-                        </div>
-                        <div class="input-group"><input type="number" id="c-sell" placeholder=" "><label>Цена продажи (общая, TJS)</label></div>
-                    </div>
-                    <div class="card" id="calc-result" style="display:none;">
-                        <h2>Результат</h2>
-                        <div class="result-grid">
-                            <div class="result-box"><span>Себестоимость</span><strong id="res-cost">0</strong></div>
-                            <div class="result-box"><span>Доставка</span><strong id="res-delivery">0</strong></div>
-                            <div class="result-box" style="grid-column: span 2;"><span>Чистая прибыль</span><strong id="res-profit" class="profit-positive">0</strong></div>
-                        </div>
-                    </div>
-                    <div class="card" id="save-order-form" style="display:none; margin-top:16px;">
-                        <h2>Сохранить заказ</h2>
-                        <div class="input-group"><input type="text" id="o-name" placeholder=" " value="Платки (опт)"><label>Название товара</label></div>
-                        <div class="input-group">
-                            <select id="o-platform">
-                                <option value="1688">1688</option>
-                                <option value="PDD">Taobao / PDD</option>
-                                <option value="WeChat">WeChat</option>
-                            </select>
-                            <label>Платформа</label>
-                        </div>
-                        <div class="input-group"><input type="text" id="o-track" placeholder=" "><label>Трек-код</label></div>
-                        <button class="btn" id="btn-save-order">Добавить в заказы</button>
-                    </div>
-                `;
-            },
-
-            viewOrders() {
-                const orders = store.getState().orders;
-                if (!orders.length) return `<h1>Заказы</h1><p style="color:var(--text-muted); text-align:center; margin-top:40px;">Нет активных заказов</p>`;
-                return `<h1>Заказы</h1>` + orders.map(o => `
-                    <div class="card order-item">
-                        <div class="order-info">
-                            <h4>${o.name} <span class="badge ${o.status}">${o.status === 'transit' ? 'В пути' : 'Пришёл'}</span></h4>
-                            <p>${o.platform} • ${o.track || 'Нет трека'} • ${new Date(o.date).toLocaleDateString('ru-RU')}</p>
-                            <p style="margin-top:8px; color:var(--success); font-weight:600;">Прибыль: ${o.profit} TJS</p>
-                        </div>
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <button class="btn btn-small" data-action="toggle-status" data-id="${o.id}">Статус</button>
-                            <button class="btn btn-small btn-danger" data-action="delete-order" data-id="${o.id}">Удалить</button>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            viewStats() {
-                const stats = Logic.getAnalytics();
-                return `
-                    <h1>Аналитика</h1>
-                    <div class="result-grid">
-                        <div class="result-box"><span>Всего заказов</span><strong>${stats.totalOrders}</strong></div>
-                        <div class="result-box"><span>В пути</span><strong>${stats.inTransit}</strong></div>
-                        <div class="result-box"><span>Пришло</span><strong>${stats.arrived}</strong></div>
-                        <div class="result-box"><span>Общая прибыль</span><strong class="profit-positive">${stats.totalProfit.toFixed(2)} TJS</strong></div>
-                    </div>
-                `;
-            },
-
-            viewSettings() {
-                const s = store.getState().settings;
-                return `
-                    <h1>Настройки</h1>
-                    <div class="card">
-                        <div class="input-group"><input type="number" step="0.01" id="set-rate" placeholder=" " value="${s.rate}"><label>Курс Юань → Сомони (TJS)</label></div>
-                        <div class="input-group">
-                            <select id="set-cargo">
-                                <option value="auto" ${s.defaultCargo === 'auto' ? 'selected' : ''}>Авто (по умолчанию)</option>
-                                <option value="air" ${s.defaultCargo === 'air' ? 'selected' : ''}>Авиа (по умолчанию)</option>
-                            </select>
-                            <label>Дефолтный тип доставки</label>
-                        </div>
-                        <button class="btn" id="btn-save-settings">Сохранить</button>
-                    </div>
-                `;
-            },
-
-            handleInputs(e) { if (this.currentView === 'calc' && e.target.id.startsWith('c-')) this.runCalculation(); },
+        function saveOrder() {
+            const qty = Number(document.getElementById('q-qty').value);
+            const priceY = Number(document.getElementById('q-price').value);
+            const weightUnit = Number(document.getElementById('q-type').value);
             
-            handleClicks(e) {
-                const t = e.target;
-                if (t.id === 'btn-save-order') {
-                    Logic.addOrder({ name: document.getElementById('o-name').value, platform: document.getElementById('o-platform').value, track: document.getElementById('o-track').value, profit: this.lastCalcData.profit });
-                    document.querySelectorAll('.tab-btn')[1].click(); 
-                }
-                if (t.id === 'btn-save-settings') {
-                    store.update(s => ({ ...s, settings: { ...s.settings, rate: Number(document.getElementById('set-rate').value), defaultCargo: document.getElementById('set-cargo').value } }));
-                    t.textContent = 'Сохранено!'; setTimeout(() => t.textContent = 'Сохранить', 2000);
-                }
-                if (t.dataset.action === 'toggle-status') Logic.toggleOrderStatus(t.dataset.id);
-                if (t.dataset.action === 'delete-order' && confirm('Удалить заказ?')) Logic.deleteOrder(t.dataset.id);
-            },
+            if(!qty || !priceY) return alert("Заполни данные!");
 
-            runCalculation() {
-                const qty = Number(document.getElementById('c-qty').value), priceYuan = Number(document.getElementById('c-price').value);
-                const weight = Number(document.getElementById('c-weight').value), cargoType = document.getElementById('c-cargo').value;
-                const sellPrice = Number(document.getElementById('c-sell').value);
+            const costTJS = qty * priceY * db.rate;
+            const deliveryTJS = (qty * weightUnit) * 30; // 30с за кг (авто)
 
-                if (qty && priceYuan && weight && sellPrice) {
-                    this.lastCalcData = Logic.calculate({ qty, priceYuan, weight, cargoType, sellPrice });
-                    this.updateCalcUI();
-                } else {
-                    document.getElementById('calc-result').style.display = 'none';
-                    document.getElementById('save-order-form').style.display = 'none';
-                }
-            },
-
-            updateCalcUI() {
-                const d = this.lastCalcData;
-                document.getElementById('calc-result').style.display = 'block'; document.getElementById('save-order-form').style.display = 'block';
-                document.getElementById('res-cost').textContent = `${d.costLocal} TJS`; document.getElementById('res-delivery').textContent = `${d.deliveryCost} TJS`;
-                const p = document.getElementById('res-profit'); p.textContent = `${d.profit} TJS`; p.style.color = d.profit >= 0 ? 'var(--success)' : 'var(--danger)';
-            }
-        };
-
-        // --- 4. ИНИЦИАЛИЗАЦИЯ И PWA ИНЖЕКЦИЯ ---
-        document.addEventListener('DOMContentLoaded', () => {
-            UI.init();
-
-            // Генерация manifest.json на лету
-            const manifestData = {
-                name: "BizTracker", short_name: "Tracker",
-                display: "standalone", background_color: "#000000", theme_color: "#000000",
-                icons: [{
-                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230A84FF' rx='40'/%3E%3Ctext x='96' y='115' font-family='sans-serif' font-weight='bold' font-size='80' fill='%23FFF' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E",
-                    sizes: "192x192", type: "image/svg+xml"
-                }]
+            const newOrder = {
+                id: Date.now(),
+                photo: currentPhoto,
+                qty: qty,
+                cost: (costTJS + deliveryTJS).toFixed(2),
+                status: 'transit', // transit, arrived, debt, paid
+                date: new Date().toLocaleDateString()
             };
-            document.getElementById('manifest-link').href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestData));
 
-            // Инъекция Service Worker (Blob URL)
-            if ('serviceWorker' in navigator) {
-                const swCode = `
-                    self.addEventListener('install', e => self.skipWaiting());
-                    self.addEventListener('activate', e => self.clients.claim());
-                    self.addEventListener('fetch', e => {}); 
-                `;
-                const blob = new Blob([swCode], {type: 'application/javascript'});
-                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(e => console.log('SW in single-file mode requires HTTPS/Localhost setup.'));
-            }
-        });
+            db.orders.unshift(newOrder);
+            localStorage.setItem('rumol_db', JSON.stringify(db));
+            alert("Заказ добавлен в путь!");
+            location.reload();
+        }
+
+        function renderOrders() {
+            const list = document.getElementById('orders-list');
+            list.innerHTML = db.orders.map(o => `
+                <div class="card order-item">
+                    <img src="${o.photo || 'https://via.placeholder.com/80'}" class="order-img">
+                    <div class="order-info">
+                        <h4>Заказ от ${o.date}</h4>
+                        <p>${o.qty} шт • Себест: ${o.cost} TJS</p>
+                        <div style="margin-top:8px;">
+                            ${getStatusBadge(o)}
+                        </div>
+                    </div>
+                    <div>
+                        ${o.status === 'transit' ? `<button onclick="updateStatus(${o.id}, 'arrived')" style="font-size:10px; padding:5px;">Пришло</button>` : ''}
+                        ${o.status === 'arrived' ? `<button onclick="markAsDebt(${o.id})" style="background:var(--danger); font-size:10px; padding:5px; color:white; border-radius:5px; border:none;">Маме</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusBadge(o) {
+            if(o.status === 'transit') return `<span class="badge transit">В ПУТИ</span>`;
+            if(o.status === 'arrived') return `<span class="badge">НА СКЛАДЕ</span>`;
+            if(o.status === 'debt') return `<span class="badge debt">ДОЛГ МАМЫ</span>`;
+            return `<span class="badge paid">ОПЛАЧЕНО</span>`;
+        }
+
+        function updateStatus(id, status) {
+            db.orders = db.orders.map(o => o.id === id ? {...o, status} : o);
+            localStorage.setItem('rumol_db', JSON.stringify(db));
+            render();
+        }
+
+        function markAsDebt(id) {
+            let sellPrice = prompt("За сколько (всего) отдаешь маме эту партию?", "600");
+            if(!sellPrice) return;
+            db.orders = db.orders.map(o => o.id === id ? {...o, status: 'debt', sellPrice: Number(sellPrice)} : o);
+            localStorage.setItem('rumol_db', JSON.stringify(db));
+            render();
+        }
+
+        function renderStats() {
+            const totalTurnover = db.orders.reduce((sum, o) => sum + Number(o.cost), 0);
+            const totalDebt = db.orders.filter(o => o.status === 'debt').reduce((sum, o) => sum + Number(o.sellPrice), 0);
+            const transitCount = db.orders.filter(o => o.status === 'transit').reduce((sum, o) => sum + o.qty, 0);
+            
+            document.getElementById('stat-turnover').innerText = totalTurnover.toFixed(0) + ' с.';
+            document.getElementById('stat-debt').innerText = totalDebt.toFixed(0) + ' с.';
+            document.getElementById('stat-transit').innerText = transitCount;
+        }
+
+        function switchView(v) {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + v).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function render() { renderStats(); renderOrders(); }
+        render();
     </script>
 </body>
 </html>
